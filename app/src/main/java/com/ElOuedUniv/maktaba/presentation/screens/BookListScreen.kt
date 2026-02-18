@@ -4,9 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -14,56 +13,81 @@ import androidx.compose.ui.unit.dp
 import com.ElOuedUniv.maktaba.data.model.Book
 import com.ElOuedUniv.maktaba.presentation.viewmodel.BookViewModel
 
-/**
- * Main screen displaying the list of books
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookListScreen(
     viewModel: BookViewModel
 ) {
     val books by viewModel.books.collectAsState()
+    val totalPages by viewModel.totalPages.collectAsState() // ✅ Added totalPages
     val isLoading by viewModel.isLoading.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Maktaba - My Library") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                title = { Text("Maktaba - My Library") }
             )
         }
     ) { paddingValues ->
-        Box(
+
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                if (books.isEmpty()) {
-                    EmptyBooksMessage(
+
+            // 🔎 Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { viewModel.updateSearchQuery(it) },
+                label = { Text("Search by title") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+
+            // 📊 Total Books Counter
+            Text(
+                text = "Total Books: ${books.size}",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // 📄 Total Pages Counter
+            Text(
+                text = "Total Pages: $totalPages",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
-                    BookList(
-                        books = books,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if (books.isEmpty()) {
+                        EmptyBooksMessage(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    } else {
+                        BookList(
+                            books = books,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-/**
- * Composable for displaying a list of books
- */
 @Composable
 fun BookList(
     books: List<Book>,
@@ -80,9 +104,6 @@ fun BookList(
     }
 }
 
-/**
- * Composable for displaying a single book item
- */
 @Composable
 fun BookItem(book: Book) {
     Card(
@@ -99,9 +120,9 @@ fun BookItem(book: Book) {
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -113,11 +134,11 @@ fun BookItem(book: Book) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = if (book.isbn.isEmpty()) "Not set" else book.isbn,
+                        text = book.isbn,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                
+
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = "Pages:",
@@ -125,7 +146,7 @@ fun BookItem(book: Book) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = if (book.nbPages == 0) "Not set" else "${book.nbPages}",
+                        text = "${book.nbPages}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -134,9 +155,6 @@ fun BookItem(book: Book) {
     }
 }
 
-/**
- * Composable for displaying empty state message
- */
 @Composable
 fun EmptyBooksMessage(modifier: Modifier = Modifier) {
     Column(
@@ -149,14 +167,8 @@ fun EmptyBooksMessage(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "No books in your library",
+            text = "No books found",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Complete the TODO exercises in BookRepository.kt",
-            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
