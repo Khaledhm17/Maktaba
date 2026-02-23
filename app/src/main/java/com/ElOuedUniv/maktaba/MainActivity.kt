@@ -4,7 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.ElOuedUniv.maktaba.data.repository.BookRepositoryImpl
 import com.ElOuedUniv.maktaba.data.repository.CategoryRepositoryImpl
 import com.ElOuedUniv.maktaba.domain.usecase.GetBooksUseCase
@@ -16,16 +19,13 @@ import com.ElOuedUniv.maktaba.presentation.viewmodel.BookViewModel
 import com.ElOuedUniv.maktaba.presentation.viewmodel.CategoryViewModel
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Book dependencies
         val bookRepository = BookRepositoryImpl()
         val getBooksUseCase = GetBooksUseCase(bookRepository)
         val bookViewModel = BookViewModel(getBooksUseCase)
-
         // Category dependencies
         val categoryRepository = CategoryRepositoryImpl()
         val getCategoriesUseCase = GetCategoriesUseCase(categoryRepository)
@@ -33,7 +33,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaktabaTheme {
-
                 var showCategories by remember { mutableStateOf(false) }
 
                 if (showCategories) {

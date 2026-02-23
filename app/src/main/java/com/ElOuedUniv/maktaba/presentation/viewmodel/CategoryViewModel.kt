@@ -1,8 +1,9 @@
 package com.ElOuedUniv.maktaba.presentation.viewmodel
-import com.ElOuedUniv.maktaba.domain.usecase.GetCategoriesUseCase
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ElOuedUniv.maktaba.data.model.Category
+import com.ElOuedUniv.maktaba.domain.usecase.GetCategoriesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,5 +37,8 @@ class CategoryViewModel(
 
     fun refreshCategories() {
         loadCategories()
+    }
+    fun getCategoryById(id: String): Category? {
+        return categories.value.find { it.id == id }
     }
 }
