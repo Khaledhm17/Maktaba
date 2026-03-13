@@ -62,6 +62,7 @@ Instead of having multiple `MutableStateFlow` variables (like `_books`, `_isLoad
 private val _uiState = MutableStateFlow(BookUiState())
 val uiState: StateFlow<BookUiState> = _uiState.asStateFlow()
 
+
 // To update:
 _uiState.update { it.copy(isLoading = true) }
 ```
