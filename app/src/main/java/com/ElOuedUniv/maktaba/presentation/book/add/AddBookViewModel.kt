@@ -21,16 +21,41 @@ class AddBookViewModel @Inject constructor(
         when (action) {
             is AddBookUiAction.OnTitleChange -> {
                 _uiState.update { it.copy(title = action.title) }
+                validateInputs()
             }
             is AddBookUiAction.OnIsbnChange -> {
                 _uiState.update { it.copy(isbn = action.isbn) }
+                validateInputs()
             }
             is AddBookUiAction.OnPagesChange -> {
                 _uiState.update { it.copy(nbPages = action.pages) }
+                validateInputs()
             }
             AddBookUiAction.OnAddClick -> {
-                addBook()
+                if (_uiState.value.isFormValid) {
+                    addBook()
+                }
             }
+        }
+    }
+
+    private fun validateInputs() {
+        val title = _uiState.value.title
+        val isbn = _uiState.value.isbn
+        val nbPages = _uiState.value.nbPages
+
+        val titleError = if (title.isBlank()) "Title cannot be empty" else null
+        val isbnError = if (isbn.length != 13 || isbn.any { !it.isDigit() }) "ISBN must be 13 digits" else null
+        val pagesInt = nbPages.toIntOrNull()
+        val pagesError = if (pagesInt == null || pagesInt <= 0) "Pages must be a positive number" else null
+
+        _uiState.update { 
+            it.copy(
+                titleError = titleError,
+                isbnError = isbnError,
+                nbPagesError = pagesError,
+                isFormValid = titleError == null && isbnError == null && pagesError == null
+            )
         }
     }
 
