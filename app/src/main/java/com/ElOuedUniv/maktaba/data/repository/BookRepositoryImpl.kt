@@ -1,5 +1,6 @@
 package com.ElOuedUniv.maktaba.data.repository
 
+import android.net.Uri
 import com.ElOuedUniv.maktaba.data.model.Book
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -27,12 +28,22 @@ class BookRepositoryImpl @Inject constructor() : BookRepository {
         emitAll(booksFlow)
     }
 
-    override fun getBookByIsbn(isbn: String): Book? {
+    override suspend fun getBookByIsbn(isbn: String): Book? {
         return _booksList.find { it.isbn == isbn }
     }
 
-    override fun addBook(book: Book) {
+    override suspend fun addBook(book: Book, imageBytes: ByteArray?) {
         _booksList.add(book)
         booksFlow.tryEmit(_booksList.toList())
+    }
+
+    override suspend fun addBook(book: Book, imageUri: Uri?) {
+        _booksList.add(book)
+        booksFlow.tryEmit(_booksList.toList())
+    }
+
+
+    override suspend fun deleteBook(isbn: String) {
+        _booksList.removeIf { it.isbn == isbn }
     }
 }

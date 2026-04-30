@@ -1,7 +1,6 @@
 package com.ElOuedUniv.maktaba.data.repository
 
 import com.ElOuedUniv.maktaba.data.model.Category
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
@@ -36,7 +35,6 @@ class CategoryRepositoryImpl @Inject constructor() : CategoryRepository {
     }
     
     override fun getAllCategories(): Flow<List<Category>> = flow {
-        delay(2000) // Simulate delay
         emitAll(categoriesFlow)
     }
 

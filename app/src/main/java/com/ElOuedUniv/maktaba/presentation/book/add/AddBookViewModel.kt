@@ -1,12 +1,15 @@
 package com.ElOuedUniv.maktaba.presentation.book.add
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ElOuedUniv.maktaba.data.model.Book
 import com.ElOuedUniv.maktaba.domain.usecase.AddBookUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +33,14 @@ class AddBookViewModel @Inject constructor(
             is AddBookUiAction.OnPagesChange -> {
                 _uiState.update { it.copy(nbPages = action.pages) }
                 validateInputs()
+            }
+            is AddBookUiAction.OnImageSelected -> {
+                _uiState.update { 
+                    it.copy(
+                        selectedImageUri = action.uri,
+                        selectedImageBytes = action.bytes
+                    )
+                }
             }
             AddBookUiAction.OnAddClick -> {
                 if (_uiState.value.isFormValid) {
@@ -66,7 +77,16 @@ class AddBookViewModel @Inject constructor(
             title = currentState.title,
             nbPages = currentState.nbPages.toIntOrNull() ?: 0
         )
-        addBookUseCase(book)
-        _uiState.update { it.copy(isSuccess = true) }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                addBookUseCase(book, currentState.selectedImageBytes)
+                Log.d("AddBookViewModel", "Success adding book to Supabase")
+                _uiState.update { it.copy(isSuccess = true, isLoading = false) }
+            } catch (e: Exception) {
+                Log.e("AddBookViewModel", "Error adding book: ${e.message}", e)
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
     }
 }
